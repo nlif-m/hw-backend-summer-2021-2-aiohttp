@@ -21,4 +21,12 @@ def error_json_response(
     message: Optional[str] = None,
     data: Optional[dict] = None,
 ):
-    raise NotImplementedError
+    if message is None:
+        message = ""
+    if data is None:
+        data = {}
+    # TODO: Handle key error when accesing HTTP_ERROR_CODES dict
+    return aiohttp_json_response(data={"status": status,
+                                       "message": message,
+                                       "data": data},
+                                 status=http_status)
