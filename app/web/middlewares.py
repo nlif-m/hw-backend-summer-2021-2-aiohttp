@@ -4,6 +4,8 @@ import typing
 from aiohttp.web_exceptions import HTTPUnprocessableEntity
 from aiohttp.web_middlewares import middleware
 from aiohttp_apispec import validation_middleware
+from aiohttp_session import session_middleware
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 
 from app.web.utils import error_json_response
 
@@ -38,5 +40,6 @@ async def error_handling_middleware(request: "Request", handler):
 
 
 def setup_middlewares(app: "Application"):
+    app.middlewares.append(session_middleware(EncryptedCookieStorage(app.config.session.secret_key)))
     app.middlewares.append(error_handling_middleware)
     app.middlewares.append(validation_middleware)
