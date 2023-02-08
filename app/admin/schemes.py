@@ -10,3 +10,7 @@ class AdminLoginRequestSchema(Schema):
 class AdminLoginResponseSchema(Schema):
     id = fields.Int(required=True)
     email = fields.Str(required=True)
+
+
+class AdminCurrentResponseSchema(AdminLoginResponseSchema):
+    pass
