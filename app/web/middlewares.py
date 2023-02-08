@@ -40,6 +40,7 @@ async def error_handling_middleware(request: "Request", handler):
 
 
 def setup_middlewares(app: "Application"):
-    app.middlewares.append(session_middleware(EncryptedCookieStorage(app.config.session.secret_key)))
+    # TODO: Add some env to change 'secure'
+    app.middlewares.append(session_middleware(EncryptedCookieStorage(app.config.session.secret_key, secure=False)))
     app.middlewares.append(error_handling_middleware)
     app.middlewares.append(validation_middleware)
