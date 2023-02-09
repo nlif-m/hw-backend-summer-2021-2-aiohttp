@@ -1,32 +1,33 @@
-from hashlib import sha256
+from aiohttp.web_exceptions import HTTPForbidden
+from aiohttp_session import new_session
+from aiohttp_apispec import docs, request_schema, response_schema, json_schema
 
-from aiohttp_session import new_session, get_session
-from aiohttp_apispec import docs, request_schema, response_schema
-
-from app.admin.models import Admin
+from app.web.mixins import AuthRequiredMixin
 from app.web.utils import json_response, error_json_response, hash_password
 from app.web.app import View
-from app.admin.schemes import AdminLoginResponseSchema, AdminLoginRequestSchema, AdminCurrentResponseSchema
+from app.admin.schemes import (
+    AdminLoginResponseSchema,
+    AdminLoginRequestSchema,
+    AdminCurrentResponseSchema,
+    AdminSchema,
+)
 
 
 class AdminLoginView(View):
     @docs()
-    @request_schema(AdminLoginRequestSchema)
+    @json_schema(AdminLoginRequestSchema)
     @response_schema(AdminLoginResponseSchema, 200)
     async def post(self):
-        raw_json = await self.request.json()
-        admin = await self.store.admins.get_by_email(raw_json['email'])
+        raw_body = await self.request.json()
+        admin = await self.store.admins.get_by_email(raw_body["email"])
         if admin is None:
-            return error_json_response(http_status=403,
-                                       message="Not Authorized",
-                                       data={})
-        if admin.password != hash_password(raw_json['password']):
-            return error_json_response(http_status=403,
-                                       message="Not Authorized")
-        session = await new_session(request=self.request)
-        # TODO: need to Add Admin, but just now cannot because Admin type is not jsonable
-        session['admin'] = admin.email
-        return json_response(data=AdminLoginResponseSchema().dump(admin))
+            raise HTTPForbidden(reason="not found admin")
+        if hash_password(raw_body["password"]) != admin.password:
+            raise HTTPForbidden(reason="invalid password")
+        session = await new_session(self.request)
+        raw_admin = AdminSchema().dump(admin)
+        session["admin"] = raw_admin
+        return json_response(data=raw_admin)
 
 
 class AdminCurrentView(View):
