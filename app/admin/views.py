@@ -30,14 +30,8 @@ class AdminLoginView(View):
         return json_response(data=raw_admin)
 
 
-class AdminCurrentView(View):
+class AdminCurrentView(AuthRequiredMixin, View):
     @docs()
     @response_schema(AdminCurrentResponseSchema, 200)
     async def get(self):
-        session = await get_session(self.request)
-        if "admin" not in session:
-            return error_json_response(http_status=401,
-                                       message="Not Authorized")
-        admin_email = session["admin"]
-        admin = await self.store.admins.get_by_email(admin_email)
-        return json_response(data=AdminCurrentResponseSchema().dump(admin))
+        return json_response(data=AdminCurrentResponseSchema().dump(self.request.admin))
