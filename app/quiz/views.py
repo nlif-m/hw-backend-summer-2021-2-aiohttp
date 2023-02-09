@@ -1,18 +1,13 @@
 from aiohttp_apispec import json_schema, docs, response_schema, request_schema
 from aiohttp.web_exceptions import HTTPConflict
 
-from app.quiz.schemes import (
-    ThemeSchema,
-)
+from app.quiz.schemes import ThemeSchema, ThemeListSchema
 from app.web.app import View
 from app.web.utils import json_response
 from app.web.mixins import AuthRequiredMixin
 
 
-# TODO: добавить проверку авторизации для этого View
 class ThemeAddView(AuthRequiredMixin, View):
-    # TODO: добавить валидацию с помощью aiohttp-apispec и marshmallow-схем
-    @docs()
     @response_schema(ThemeSchema)
     @request_schema(ThemeSchema)
     async def post(self):
@@ -24,9 +19,11 @@ class ThemeAddView(AuthRequiredMixin, View):
         return json_response(data=ThemeSchema().dump(theme))
 
 
-class ThemeListView(View):
+class ThemeListView(AuthRequiredMixin, View):
+    @response_schema(ThemeListSchema)
     async def get(self):
-        raise NotImplementedError
+        themes = await self.store.quizzes.list_themes()
+        return json_response(data=ThemeListSchema().dump({"themes": themes}))
 
 
 class QuestionAddView(View):
