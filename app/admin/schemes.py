@@ -7,9 +7,13 @@ class AdminLoginRequestSchema(Schema):
     password = fields.Str(required=True)
 
 
-class AdminLoginResponseSchema(Schema):
-    id = fields.Int(required=True)
+class AdminSchema(Schema):
+    id = fields.Integer(required=True)
     email = fields.Str(required=True)
+
+
+class AdminLoginResponseSchema(AdminSchema):
+    pass
 
 
 class AdminCurrentResponseSchema(AdminLoginResponseSchema):
