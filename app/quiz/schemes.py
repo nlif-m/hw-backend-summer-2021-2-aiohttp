@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields
+from marshmallow.validate import Length
 
 
 class ThemeSchema(Schema):
@@ -6,20 +7,24 @@ class ThemeSchema(Schema):
     title = fields.Str(required=True)
 
 
-class QuestionSchema(Schema):
-    pass
-
-
 class AnswerSchema(Schema):
-    pass
+    title = fields.Str(required=True)
+    is_correct = fields.Bool(required=True)
+
+
+class QuestionSchema(Schema):
+    id = fields.Int(dump_only=True)
+    title = fields.Str(required=True)
+    theme_id = fields.Int(required=True)
+    answers = fields.Nested(
+        AnswerSchema, required=True, many=True, validate=Length(min=2)
+    )
 
 
 class ThemeListSchema(Schema):
     themes = fields.Nested(ThemeSchema, many=True)
 
 
-class ThemeIdSchema(Schema):
-    pass
 
 
 class ListQuestionSchema(Schema):
