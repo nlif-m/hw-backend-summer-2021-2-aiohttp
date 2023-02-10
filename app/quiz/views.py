@@ -3,6 +3,7 @@ from aiohttp_apispec import (
     docs,
     response_schema,
     request_schema,
+    querystring_schema,
 )
 from aiohttp.web_exceptions import HTTPConflict, HTTPNotFound, HTTPBadRequest
 
@@ -10,6 +11,8 @@ from app.quiz.schemes import (
     ThemeSchema,
     ThemeListSchema,
     QuestionSchema,
+    ListQuestionSchema,
+    ListQuestionRequestSchema,
 )
 from app.web.app import View
 from app.web.utils import json_response
@@ -62,6 +65,17 @@ class QuestionAddView(AuthRequiredMixin, View):
         question = await self.store.quizzes.create_question(title, theme_id, answers)
         return json_response(data=QuestionSchema().dump(question))
 
-class QuestionListView(View):
+
+class QuestionListView(AuthRequiredMixin, View):
+    @querystring_schema(ListQuestionRequestSchema)
     async def get(self):
-        raise NotImplementedError
+        theme_id = self.request.query.get("theme_id")
+        if not theme_id:
+            questions = await self.store.quizzes.list_questions()
+            return json_response(
+                data=ListQuestionSchema().dump({"questions": questions})
+            )
+
+        theme_id = int(theme_id)
+        questions = await self.store.quizzes.list_questions(theme_id)
+        return json_response(data=ListQuestionSchema().dump({"questions": questions}))

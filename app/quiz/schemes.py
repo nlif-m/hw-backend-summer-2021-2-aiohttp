@@ -25,7 +25,9 @@ class ThemeListSchema(Schema):
     themes = fields.Nested(ThemeSchema, many=True)
 
 
+class ListQuestionRequestSchema(Schema):
+    theme_id = fields.Int(allow_none=True)
 
 
 class ListQuestionSchema(Schema):
-    pass
+    questions = fields.Nested(QuestionSchema, many=True)
