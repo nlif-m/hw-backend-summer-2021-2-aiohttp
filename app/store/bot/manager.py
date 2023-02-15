@@ -16,6 +16,6 @@ class BotManager:
                 continue
             await self.app.store.vk_api.send_message(
                 message=Message(
-                    user_id=update.object.message.from_id, text="hello from aiohttp"
+                    user_id=update.object.message.from_id, text="Hello from aiohttp"
                 )
             )
