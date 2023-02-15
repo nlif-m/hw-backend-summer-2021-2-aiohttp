@@ -15,7 +15,7 @@ class Store:
 
         self.quizzes = QuizAccessor(app)
         self.admins = AdminAccessor(app)
-        self.vkApi = VkApiAccessor(app)
+        self.vk_api = VkApiAccessor(app)
         self.bots_manager = BotManager(app)
 
 
